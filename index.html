@@ -1,110 +1,119 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <title>Mening Saytim</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      color: #333;
-    }
-    header {
-      background: rgba(255,255,255,0.2);
-      padding: 20px;
-      text-align: center;
-      color: white;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 40px;
-    }
-    nav {
-      text-align: center;
-      margin: 20px 0;
-    }
-    nav a {
-      text-decoration: none;
-      margin: 0 15px;
-      padding: 10px 20px;
-      background: white;
-      border-radius: 20px;
-      color: #333;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    nav a:hover {
-      background: #333;
-      color: white;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-      text-align: center;
-    }
-    .container img {
-      width: 200px;
-      border-radius: 50%;
-      margin: 20px 0;
-      border: 5px solid white;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 25px;
-      background: #ff9800;
-      color: white;
-      font-weight: bold;
-      border-radius: 25px;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-    .btn:hover {
-      background: #e67e22;
-    }
-    footer {
-      margin-top: 40px;
-      padding: 15px;
-      background: rgba(255,255,255,0.2);
-      text-align: center;
-      color: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>O‘yinlar Sayti</title>
+<style>
+body { font-family: Arial; text-align: center; background: #f0f0f0; }
+h1 { margin-top: 20px; }
+button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+.game { display: none; margin-top: 20px; }
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>Salom, bu mening sayt!</h1>
-    <p>HTML + CSS bilan yaratilgan oddiy portfolio sahifa</p>
-  </header>
+<h1>O‘yinlar Sayti</h1>
 
-  <nav>
-    <a href="#about">Men haqimda</a>
-    <a href="#rasm">Rasmlar</a>
-    <a href="#aloqa">Aloqa</a>
-  </nav>
+<button onclick="showGame('tic')">Tic-Tac-Toe</button>
+<button onclick="showGame('snake')">Snake</button>
+<button onclick="showGame('memory')">Memory Game</button>
 
-  <div class="container" id="about">
-    <h2>👋 Men haqimda</h2>
-    <img src="https://picsum.photos/200" alt="Men haqimda rasm">
-    <p>Men oddiy saytlar yaratishni o‘rganayapman. Bu mening birinchi chiroyli HTML sahifam 😊</p>
-    <a class="btn" href="https://t.me/thr_dasturlashc" target="_blank">Telegram kanalga kirish</a>
-  </div>
+<div id="tic" class="game">
+    <h2>Tic-Tac-Toe</h2>
+    <button onclick="startTicTacToe()">Boshlash</button>
+    <div id="ticBoard"></div>
+</div>
 
-  <div class="container" id="rasm">
-    <h2>📸 Rasmlar</h2>
-    <img src="https://picsum.photos/300/200" alt="Rasm 1">
-    <img src="https://picsum.photos/301/200" alt="Rasm 2">
-    <img src="https://picsum.photos/302/200" alt="Rasm 3">
-  </div>
+<div id="snake" class="game">
+    <h2>Snake</h2>
+    <button onclick="startSnake()">Boshlash</button>
+    <canvas id="snakeCanvas" width="300" height="300" style="border:1px solid #000;"></canvas>
+</div>
 
-  <footer id="aloqa">
-    <p>📧 Email: qoblankalmuratov088@gmail.com | 📱 Tel: +998 33 906 06 31</p>
-    <p>&copy; 2025 Mening Saytim</p>
-  </footer>
+<div id="memory" class="game">
+    <h2>Memory Game</h2>
+    <button onclick="startMemory()">Boshlash</button>
+    <div id="memoryBoard"></div>
+</div>
+
+<script>
+function showGame(game) {
+    document.querySelectorAll('.game').forEach(g => g.style.display = 'none');
+    document.getElementById(game).style.display = 'block';
+}
+
+function startTicTacToe() {
+    const board = document.getElementById('ticBoard');
+    board.innerHTML = '';
+    let turn = 'X';
+    for (let i = 0; i < 9; i++) {
+        let cell = document.createElement('button');
+        cell.style.width = '60px'; cell.style.height = '60px'; cell.style.fontSize = '24px';
+        cell.onclick = () => {
+            if (!cell.textContent) {
+                cell.textContent = turn;
+                turn = (turn === 'X') ? 'O' : 'X';
+            }
+        };
+        board.appendChild(cell);
+        if ((i+1)%3===0) board.appendChild(document.createElement('br'));
+    }
+}
+
+let snakeInterval;
+function startSnake() {
+    clearInterval(snakeInterval);
+    const canvas = document.getElementById('snakeCanvas');
+    const ctx = canvas.getContext('2d');
+    const box = 20;
+    let snake = [{x: 8*box, y: 8*box}];
+    let food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
+    let dx = box; let dy = 0;
+    document.onkeydown = e => {
+        if(e.key==='ArrowUp'){dx=0; dy=-box;}
+        if(e.key==='ArrowDown'){dx=0; dy=box;}
+        if(e.key==='ArrowLeft'){dx=-box; dy=0;}
+        if(e.key==='ArrowRight'){dx=box; dy=0;}
+    };
+    function draw() {
+        ctx.fillStyle = 'white'; ctx.fillRect(0,0,300,300);
+        snake.forEach(s => { ctx.fillStyle='green'; ctx.fillRect(s.x,s.y,box,box); });
+        ctx.fillStyle='red'; ctx.fillRect(food.x,food.y,box,box);
+        let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        if(head.x<0 || head.y<0 || head.x>=300 || head.y>=300 || snake.some(s=>s.x===head.x && s.y===head.y)){
+            clearInterval(snakeInterval); alert('O‘yin tugadi!'); return;
+        }
+        snake.unshift(head);
+        if(head.x===food.x && head.y===food.y){
+            food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
+        } else { snake.pop(); }
+    }
+    snakeInterval = setInterval(draw, 200);
+}
+
+function startMemory() {
+    const board = document.getElementById('memoryBoard');
+    board.innerHTML = '';
+    let cards = ['A','A','B','B','C','C','D','D'];
+    cards.sort(() => 0.5 - Math.random());
+    let first = null;
+    cards.forEach((c, i) => {
+        let card = document.createElement('button');
+        card.textContent = '?';
+        card.style.width='60px'; card.style.height='60px'; card.style.fontSize='24px'; card.style.margin='5px';
+        card.onclick = () => {
+            card.textContent = c;
+            if (!first) { first = card; }
+            else {
+                if (first.textContent !== card.textContent) {
+                    setTimeout(()=>{first.textContent='?'; card.textContent='?'; first=null;},500);
+                } else { first=null; }
+            }
+        };
+        board.appendChild(card);
+    });
+}
+</script>
 
 </body>
 </html>
